@@ -19,7 +19,6 @@
     .card img{width:112px;height:112px;border-radius:24px}h1{margin:16px 0 8px;font-size:30px}p{margin:8px 0;color:#5b6778;line-height:1.5}
     .hint{font-size:15px;margin-top:18px}button{width:100%;margin-top:18px;border:0;border-radius:16px;padding:17px 18px;font-size:20px;font-weight:700;background:#1976d2;color:#fff;cursor:pointer}
     #error{display:none;margin-top:14px;padding:12px;border-radius:12px;background:#fdeaea;color:#9a1111;text-align:left}
-    #frameWrap{display:none;width:100%;height:100dvh;background:#fff}iframe{display:block;width:100%;height:100%;border:0;background:#fff}
   </style>
 </head>
 <body>
@@ -28,14 +27,13 @@
     <p class="hint">Diese Seite zum Home-Bildschirm hinzufuegen. Danach die App ueber das Symbol "Assistenz" starten.</p>
     <button id="openButton" type="button">App oeffnen</button><div id="error"></div>
   </div></section>
-  <section id="frameWrap"><iframe id="webapp" title="Assistenzausgaben" allow="camera *; clipboard-read *; clipboard-write *"></iframe></section>
   <script>
-    const start=document.getElementById('start'),frameWrap=document.getElementById('frameWrap'),frame=document.getElementById('webapp'),error=document.getElementById('error'),button=document.getElementById('openButton');
+    const start=document.getElementById('start'),error=document.getElementById('error'),button=document.getElementById('openButton');
     let config=null;
     function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}
     function valid(v){try{const u=new URL(v);return u.protocol==='https:'&&u.hostname==='script.google.com'&&u.pathname.endsWith('/exec')}catch(_){return false}}
     async function load(){const r=await fetch('./config.json',{cache:'no-store'});if(!r.ok)throw new Error('Konfiguration konnte nicht geladen werden.');config=await r.json();if(!valid(String(config.webAppUrl||'').trim()))throw new Error('WebApp-Link ist ungueltig.');return config}
-    async function openApp(){try{error.style.display='none';button.disabled=true;button.textContent='App wird geoeffnet ...';if(!config)await load();start.style.display='none';frameWrap.style.display='block';frame.src=String(config.webAppUrl).trim()}catch(e){button.disabled=false;button.textContent='App oeffnen';error.style.display='block';error.textContent=e&&e.message?e.message:'Die App konnte nicht gestartet werden.'}}
+    async function openApp(){try{error.style.display='none';button.disabled=true;button.textContent='App wird geoeffnet ...';if(!config)await load();window.location.replace(String(config.webAppUrl).trim())}catch(e){button.disabled=false;button.textContent='App oeffnen';error.style.display='block';error.textContent=e&&e.message?e.message:'Die App konnte nicht gestartet werden.'}}
     button.addEventListener('click',openApp);
     if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
     if(isStandalone())openApp();else load().catch(e=>{error.style.display='block';error.textContent=e&&e.message?e.message:'Konfiguration konnte nicht geladen werden.'});
